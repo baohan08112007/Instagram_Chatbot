@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Instagram-style scrollbar */
+::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+/* Custom scrollbar for message area */
+.scroll-thin::-webkit-scrollbar {
+  width: 4px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: #dbdbdb;
+  border-radius: 2px;
+}
+.scroll-thin:hover::-webkit-scrollbar {
+  width: 4px;
+}
+
+/* Input placeholder color */
+.input-ig::placeholder {
+  color: #8e8e8e;
+  font-size: 14px;
+}
+
+/* Focus ring removal for Instagram aesthetic */
+input:focus, button:focus {
+  outline: none;
+}
