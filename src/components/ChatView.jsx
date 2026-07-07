@@ -23,7 +23,7 @@ function parseProductImages(text) {
  * Header + message list + input bar — exact Instagram layout.
  * Persists messages to cookies via onMessagesChange callback.
  */
-export default function ChatView({ conversation, onBack, onMessagesChange }) {
+export default function ChatView({ conversation, onBack, onMessagesChange, showDataPanel, onToggleData }) {
   const [messages, setMessages] = useState(conversation?.messages || [])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -147,6 +147,19 @@ export default function ChatView({ conversation, onBack, onMessagesChange }) {
         </div>
 
         {/* Action icons */}
+        <button
+          onClick={onToggleData}
+          className={`shrink-0 w-8 h-8 flex items-center justify-center hover:bg-ig-canvas-soft rounded-ig-avatar transition-colors ${showDataPanel ? 'text-ig-primary' : 'text-ig-ink'}`}
+          aria-label="Toggle shop data panel"
+          title={showDataPanel ? 'Ẩn dữ liệu shop' : 'Xem dữ liệu shop'}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={showDataPanel ? 'text-ig-primary' : 'text-ig-ink'}>
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+          </svg>
+        </button>
         <button
           className="shrink-0 w-8 h-8 flex items-center justify-center hover:bg-ig-canvas-soft rounded-ig-avatar transition-colors"
           aria-label="Voice call"
