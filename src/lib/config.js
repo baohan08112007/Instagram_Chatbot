@@ -20,7 +20,7 @@ export const SHOP_DATASET = [
     stock: 'Còn hàng — tất cả size và màu',
     bestSeller: true,
     tags: ['basic', 'cotton', 'hàng ngày', 'unisex'],
-    image: 'https://images.pexels.com/photos/37661409/pexels-photo-37661409.jpeg?auto=compress&cs=tinysrgb&h=350',
+    image: '/images/ao_thun_basic.png',
   },
   {
     id: 'AT002',
@@ -36,7 +36,7 @@ export const SHOP_DATASET = [
     stock: 'Còn hàng — thiếu size 2XL màu xanh rêu',
     bestSeller: true,
     tags: ['oversize', 'streetwear', 'unisex', 'hot trend'],
-    image: 'https://images.pexels.com/photos/20755886/pexels-photo-20755886.jpeg?auto=compress&cs=tinysrgb&h=350',
+    image: '/images/thun form rộng.png',
   },
   {
     id: 'AT003',
@@ -52,7 +52,7 @@ export const SHOP_DATASET = [
     stock: 'Còn hàng — đầy đủ',
     bestSeller: false,
     tags: ['polo', 'công sở', 'lịch sự', 'thoáng mát'],
-    image: 'https://images.pexels.com/photos/4295983/pexels-photo-4295983.jpeg?auto=compress&cs=tinysrgb&h=350',
+    image: '/images/polo.png',
   },
 
   // ── ÁO SƠ MI ──
@@ -70,7 +70,7 @@ export const SHOP_DATASET = [
     stock: 'Còn hàng — thiếu size S màu hồng nhạt',
     bestSeller: true,
     tags: ['công sở', 'slim fit', 'lịch sự', 'sự kiện'],
-    image: 'https://images.pexels.com/photos/34027685/pexels-photo-34027685.jpeg?auto=compress&cs=tinysrgb&h=350',
+    image: '/images/ao_so_mi_trang.png',
   },
   {
     id: 'AS002',
@@ -86,7 +86,7 @@ export const SHOP_DATASET = [
     stock: 'Còn hàng — đủ màu, size',
     bestSeller: false,
     tags: ['hawaii', 'du lịch', 'biển', 'họa tiết', 'mùa hè'],
-    image: 'https://images.pexels.com/photos/17488465/pexels-photo-17488465.jpeg?auto=compress&cs=tinysrgb&h=350',
+    image: '/images/Ao_so_mi_hawaii.png',
   },
 
   // ── QUẦN JEANS ──
@@ -104,7 +104,7 @@ export const SHOP_DATASET = [
     stock: 'Còn hàng — thiếu size 33, 34 màu xám',
     bestSeller: true,
     tags: ['jeans', 'slim fit', 'co giãn', 'hàng ngày'],
-    image: 'https://images.pexels.com/photos/19915668/pexels-photo-19915668.jpeg?auto=compress&cs=tinysrgb&h=350',
+    image: '/images/jean.png',
   },
   {
     id: 'QJ002',
@@ -120,7 +120,7 @@ export const SHOP_DATASET = [
     stock: 'Còn hàng — đủ size, màu xanh nhạt rách chỉ còn size 29-31',
     bestSeller: false,
     tags: ['jeans', 'straight', 'vintage', 'retro', 'dày dặn'],
-    image: 'https://images.pexels.com/photos/20248582/pexels-photo-20248582.jpeg?auto=compress&cs=tinysrgb&h=350',
+    image: '/images/jean ống rộng.png',
   },
 
   // ── QUẦN SHORT ──
@@ -138,7 +138,7 @@ export const SHOP_DATASET = [
     stock: 'Còn hàng — đầy đủ',
     bestSeller: false,
     tags: ['short', 'kaki', 'mùa hè', 'thoáng mát'],
-    image: 'https://images.pexels.com/photos/15012251/pexels-photo-15012251.jpeg?auto=compress&cs=tinysrgb&h=350',
+    image: '/images/đùi kaki.png',
   },
   {
     id: 'QS002',
@@ -154,7 +154,7 @@ export const SHOP_DATASET = [
     stock: 'Còn hàng — đầy đủ',
     bestSeller: false,
     tags: ['thể thao', 'gym', 'nỉ', 'mặc nhà'],
-    image: 'https://images.pexels.com/photos/36186300/pexels-photo-36186300.jpeg?auto=compress&cs=tinysrgb&h=350',
+    image: '/images/đùi thể thao.png',
   },
 
   // ── ÁO KHOÁC ──
@@ -172,7 +172,7 @@ export const SHOP_DATASET = [
     stock: 'Còn hàng — thiếu màu đỏ rượu size M',
     bestSeller: true,
     tags: ['bomber', 'áo khoác', 'thu đông', 'chống gió'],
-    image: 'https://images.pexels.com/photos/6062228/pexels-photo-6062228.jpeg?auto=compress&cs=tinysrgb&h=350',
+    image: '/images/ao_khoac_bomber.png',
   },
   {
     id: 'AK002',
@@ -191,73 +191,6 @@ export const SHOP_DATASET = [
     image: 'https://images.pexels.com/photos/19461583/pexels-photo-19461583.jpeg?auto=compress&cs=tinysrgb&h=350',
   },
 
-  // ── GIÀY ──
-  {
-    id: 'G001',
-    category: 'Giày',
-    name: 'Giày sneaker basic trắng',
-    price: '720,000đ',
-    originalPrice: '950,000đ',
-    sizes: ['38', '39', '40', '41', '42', '43'],
-    colors: ['trắng', 'trắng/xanh', 'đen', 'xám'],
-    material: 'Da PU cao cấp, đế cao su non, lót EVA êm',
-    description: 'Sneaker basic thiết kế tối giản, dễ phối đồ. Da PU mềm, chống nước nhẹ. Đế cao su non đúc nguyên khối, êm chân đi cả ngày. Lót EVA đàn hồi, khử mùi. Form chuẩn — đi size bình thường.',
-    care: 'Lau bằng khăn ẩm, không giặt nước, bảo quản nơi khô ráo',
-    stock: 'Còn hàng — size 43 màu trắng sắp hết (còn 2 đôi)',
-    bestSeller: true,
-    tags: ['sneaker', 'basic', 'trắng', 'dễ phối đồ'],
-    image: 'https://images.pexels.com/photos/4296075/pexels-photo-4296075.jpeg?auto=compress&cs=tinysrgb&h=350',
-  },
-
-  // ── PHỤ KIỆN ──
-  {
-    id: 'PK001',
-    category: 'Phụ kiện',
-    name: 'Túi tote canvas',
-    price: '180,000đ',
-    originalPrice: '250,000đ',
-    sizes: ['Một size (40x35cm)'],
-    colors: ['trắng kem chữ đen', 'đen chữ trắng', 'xanh rêu chữ kem'],
-    material: 'Canvas cotton 16oz, dây đeo chắc chắn',
-    description: 'Túi tote canvas dày dặn, in chữ typography tối giản. Ngăn chính rộng rãi, có ngăn phụ nhỏ bên trong. Đựng laptop 14 inch vừa vặn. Dây dài đeo vai thoải mái.',
-    care: 'Giặt tay nước lạnh, không tẩy, phơi khô tự nhiên',
-    stock: 'Còn hàng — đầy đủ',
-    bestSeller: false,
-    tags: ['túi tote', 'canvas', 'phụ kiện', 'unisex'],
-    image: 'https://images.pexels.com/photos/27174572/pexels-photo-27174572.jpeg?auto=compress&cs=tinysrgb&h=350',
-  },
-  {
-    id: 'PK002',
-    category: 'Phụ kiện',
-    name: 'Mũ lưỡi trai basic',
-    price: '150,000đ',
-    originalPrice: '200,000đ',
-    sizes: ['Một size (có khóa điều chỉnh)'],
-    colors: ['đen', 'trắng', 'xanh navy', 'be', 'đỏ'],
-    material: 'Cotton 100%, lưới thoáng sau lưng mũ',
-    description: 'Mũ lưỡi trai basic, form cong, có khóa điều chỉnh size. Chất cotton mềm, lỗ thoáng khí, không bí đầu. Logo 2N Store nhỏ ở phía trước.',
-    care: 'Lau khăn ẩm, không giặt máy, phơi bóng râm',
-    stock: 'Còn hàng — đầy đủ màu',
-    bestSeller: false,
-    tags: ['mũ', 'lưỡi trai', 'basic', 'phụ kiện'],
-    image: 'https://images.pexels.com/photos/16073272/pexels-photo-16073272.jpeg?auto=compress&cs=tinysrgb&h=350',
-  },
-  {
-    id: 'PK003',
-    category: 'Phụ kiện',
-    name: 'Tất cổ ngắn cotton (bộ 3 đôi)',
-    price: '90,000đ',
-    originalPrice: '120,000đ',
-    sizes: ['Một size (39-42)'],
-    colors: ['trắng', 'đen', 'xám', 'mix màu'],
-    material: 'Cotton 80%, spandex 20%, co giãn tốt',
-    description: 'Tất cổ ngắn chất cotton dày, thấm hút mồ hôi tốt. Co giãn 360°, không tuột gót. Bộ 3 đôi tiết kiệm. Phù hợp mang sneaker, giày thể thao.',
-    care: 'Giặt máy bình thường, không tẩy, sấy nhiệt thấp',
-    stock: 'Còn hàng — đầy đủ',
-    bestSeller: false,
-    tags: ['tất', 'vớ', 'cotton', 'bộ 3'],
-    image: 'https://images.pexels.com/photos/27008331/pexels-photo-27008331.jpeg?auto=compress&cs=tinysrgb&h=350',
-  },
 
   // ── ĐẦM/VÁY ──
   {
@@ -274,7 +207,7 @@ export const SHOP_DATASET = [
     stock: 'Còn hàng — đầy đủ',
     bestSeller: false,
     tags: ['đầm', 'váy', 'nữ', 'basic', 'suông'],
-    image: 'https://images.pexels.com/photos/7742887/pexels-photo-7742887.jpeg?auto=compress&cs=tinysrgb&h=350',
+    image: '/images/Screenshot 2026-07-12 at 16.10.06.png',
   },
 ]
 
