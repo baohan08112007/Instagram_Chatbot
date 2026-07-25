@@ -217,16 +217,16 @@ export const PRODUCT_IMAGE_MAP = Object.fromEntries(
 )
 
 export const SHOP_INFO = {
-  name: '2N Store',
-  owner: 'Nhi & Nghĩa',
+  name: 'Hubi Store',
+  owner: 'Hân',
   slogan: 'Chất lượng — Giá tốt — Giao nhanh',
   location: '123 Nguyễn Trãi, Quận 1, TP. Hồ Chí Minh',
   phone: '0901234567',
-  email: '2nstore@gmail.com',
+  email: 'hubistore@gmail.com',
   socials: {
-    instagram: '@2nstore',
-    facebook: 'fb.com/2nstore',
-    shopee: 'shopee.vn/2nstore',
+    instagram: 'hubistore',
+    facebook: 'fb.com/hubistore',
+    shopee: 'shopee.vn/hubistore',
   },
   shipping: {
     policy: 'Giao hàng toàn quốc. Nội thành HCM 1-2 ngày, tỉnh thành khác 3-5 ngày. Đóng gói kỹ, check hàng trước khi nhận.',

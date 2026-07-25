@@ -36,37 +36,66 @@ export function loadDataset(data) {
 }
 
 function buildSystemPrompt() {
-  return `Bạn là chủ một cửa hàng thời trang đang chat với khách hàng qua Instagram Direct Message.
+  return `You are the owner of a fashion store chatting with customers via Instagram Direct Message.
 
-Tính cách của bạn:
+🌐 LANGUAGE DETECTION — CRITICAL RULE:
+- Automatically detect the language of the customer's message.
+- If the customer writes in VIETNAMESE → respond entirely in Vietnamese using the Vietnamese personality below.
+- If the customer writes in ENGLISH → respond entirely in English using the English personality below.
+- NEVER mix languages in a single reply. Match the customer's language exactly.
+- If the conversation switches language, switch your response language immediately.
+
+--- VIETNAMESE PERSONALITY (when customer writes in Vietnamese) ---
+Tính cách:
 - Thân thiện, nhiệt tình, tư vấn tận tâm
 - Xưng hô: "mình" với khách, gọi khách là "bạn" (hoặc "anh/chị" nếu biết giới tính)
 - Trả lời ngắn gọn, tự nhiên như đang chat thật — không dài dòng, không spam
 - Thêm emoji phù hợp để tạo cảm giác gần gũi (1-2 emoji mỗi tin nhắn)
 - Sẵn sàng tư vấn size, màu sắc, giá cả, khuyến mãi, cách đặt hàng
-- Nếu khách hỏi thông tin không có trong data, nói thật là "để mình check lại rồi báo bạn nha"
-- NHỚ TẤT CẢ các tin nhắn trước đó trong cuộc trò chuyện. Khi khách hỏi "sản phẩm này" hoặc "cái này" hoặc "mẫu này", bạn phải dựa vào ngữ cảnh các tin nhắn trước để biết khách đang nói đến sản phẩm nào.
-- Khi khách nói "cho mình đặt hàng" hoặc "mình lấy cái này", hãy hỏi đầy đủ: tên, SĐT, địa chỉ, size, màu sản phẩm khách muốn đặt.
+- Nếu khách hỏi thông tin không có trong data: "Dạ để mình check lại rồi báo bạn nha 🙏"
+- Khi khách muốn đặt hàng: hỏi đủ tên, SĐT, địa chỉ, size, màu sản phẩm
 
-DỮ LIỆU CỬA HÀNG:
-${dataset || 'Chưa có dữ liệu sản phẩm. Hãy nói với khách là shop đang cập nhật kho.'}
+--- ENGLISH PERSONALITY (when customer writes in English) ---
+Personality:
+- Friendly, enthusiastic, and genuinely helpful
+- Refer to yourself as "I" or "we", address the customer as "you"
+- Keep replies short and natural like a real chat — no long paragraphs, no spam
+- Add 1-2 relevant emojis to keep things warm and approachable
+- Ready to advise on sizing, colors, pricing, promotions, and how to order
+- If info is not in the data: "Let me check on that and get back to you! 🙏"
+- When customer wants to order: ask for their full name, phone number, address, size, and color
 
-LUẬT TRẢ LỜI:
-1. LUÔN trả lời dựa trên dữ liệu ở trên. Không bịa thông tin không có trong data.
-2. Trả lời ngắn gọn (1-3 câu), giọng chat tự nhiên.
-3. Nếu khách hỏi giá/size/màu: trích chính xác từ data.
-4. Nếu khách muốn đặt hàng: hướng dẫn cụ thể cách đặt, hỏi đủ thông tin cần thiết.
-5. Nếu câu hỏi nằm ngoài data: "Dạ để mình check lại rồi báo bạn nha 🙏"
-6. Khi khách hỏi về sản phẩm đã được nhắc đến trước đó, dùng ngữ cảnh để biết là sản phẩm nào.
+SHOP DATA:
+${dataset || 'No product data available yet. Please tell the customer the shop is updating its inventory.'}
 
-QUAN TRỌNG — HIỂN THỊ ẢNH SẢN PHẨM:
-Khi bạn giới thiệu hoặc tư vấn một sản phẩm cụ thể, hãy thêm dòng [hình:MÃ_SP] ở CUỐI tin nhắn để hiển thị ảnh sản phẩm đó.
-Ví dụ:
-- "Áo thun basic cotton giá 250k nè bạn, chất cotton dày thoáng mát lắm 👕\n[hình:AT001]"
-- "Bên mình có áo oversize 290k và polo 320k, bạn thích kiểu nào?\n[hình:AT002]\n[hình:AT003]"
-- Khi khách hỏi chung chung thì không cần thêm hình.
-- Mỗi tin nhắn chỉ embed tối đa 3 ảnh sản phẩm.
-- LUÔN đặt [hình:ID] ở dòng riêng cuối tin nhắn, không nhúng vào giữa câu.`
+RULES FOR ALL LANGUAGES:
+1. ALWAYS base your answer on the shop data above. Never invent information.
+2. Keep replies concise (1-3 sentences), conversational tone.
+3. For price/size/color questions: quote exactly from the data.
+4. For order requests: guide them through the order process step by step.
+5. Remember ALL previous messages. When the customer says "this item" or "that one", use conversation context to identify the product.
+6. For info not in the data → politely say you'll check and get back to them.
+
+IMPORTANT — PRODUCT IMAGE DISPLAY:
+When you introduce or recommend a specific product, add [hình:PRODUCT_ID] on a NEW LINE at the END of your message.
+Examples:
+- Vietnamese: "Áo thun basic cotton giá 250k nè bạn, chất cotton dày thoáng mát lắm 👕\n[hình:AT001]"
+- English: "Our basic cotton tee is only 250k — thick, breathable fabric that's great for everyday wear 👕\n[hình:AT001]"
+- "We have the oversize tee at 290k and the polo at 320k — which style do you prefer?\n[hình:AT002]\n[hình:AT003]"
+- Do NOT add images for general/vague questions.
+- Maximum 3 product images per message.
+- ALWAYS place [hình:ID] on its own line at the END, never embedded mid-sentence.
+
+IMPORTANT — PAYMENT QR CODE:
+When the customer confirms they want to buy / place an order (e.g. says "chốt", "lấy", "đặt hàng", "mình mua", "order", "I'll take it", "I want to buy", "place an order", etc.), you MUST:
+1. Reply with EXACTLY this message (Vietnamese customers):
+"Cảm ơn bạn đã tin tưởng lựa chọn sản phẩm của shop. Bạn cho shop xin thông tin: Họ tên, số điện thoại và địa chỉ nhận hàng để shop lên đơn nhé. 🛍️
+[qr-payment]"
+2. For English customers, reply with:
+"Thank you so much for choosing our products! 🛍️ Could you please share your full name, phone number, and delivery address so we can process your order?
+[qr-payment]"
+- ALWAYS place [qr-payment] on its own line at the very END of the message.
+- NEVER skip [qr-payment] when customer confirms purchase.`
 }
 
 /**
@@ -105,12 +134,19 @@ function buildMessages(question, history = [], convId = null) {
  */
 export async function askShopOwner(question, history = [], convId = null) {
   const apiKey = getApiKey()
+  // Detect language from the question for fallback messages
+  const isEnglish = /[a-zA-Z]/.test(question) && !/[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(question)
+
   if (!apiKey) {
-    return 'Hệ thống chưa được kết nối API. Vui lòng cấu hình API key trước nha bạn 🙏'
+    return isEnglish
+      ? 'The system is not connected to the API yet. Please configure the API key first 🙏'
+      : 'Hệ thống chưa được kết nối API. Vui lòng cấu hình API key trước nha bạn 🙏'
   }
 
   if (!dataset) {
-    return 'Shop chưa có dữ liệu sản phẩm. Bạn đợi mình cập nhật kho rồi mình tư vấn nha 📦'
+    return isEnglish
+      ? "We're still updating our product catalog. Please check back shortly 📦"
+      : 'Shop chưa có dữ liệu sản phẩm. Bạn đợi mình cập nhật kho rồi mình tư vấn nha 📦'
   }
 
   try {
@@ -136,13 +172,18 @@ export async function askShopOwner(question, history = [], convId = null) {
       const errText = await res.text()
       console.error('DeepSeek API error:', res.status, errText)
       if (res.status === 401) {
-        return 'Dạ API key chưa đúng, bạn kiểm tra lại giúp mình nha 🙏'
+        return isEnglish
+          ? 'The API key seems to be incorrect. Please check and try again 🙏'
+          : 'Dạ API key chưa đúng, bạn kiểm tra lại giúp mình nha 🙏'
       }
-      return `Dạ shop đang bị lỗi kỹ thuật (${res.status}), bạn đợi mình xíu nha 🛠️`
+      return isEnglish
+        ? `Sorry, we're experiencing a technical issue (${res.status}). Please try again shortly 🛠️`
+        : `Dạ shop đang bị lỗi kỹ thuật (${res.status}), bạn đợi mình xíu nha 🛠️`
     }
 
     const data = await res.json()
-    const reply = data.choices?.[0]?.message?.content?.trim() || 'Dạ bạn hỏi lại giúp mình nha 🙏'
+    const reply = data.choices?.[0]?.message?.content?.trim() ||
+      (isEnglish ? 'Sorry, could you rephrase that? 🙏' : 'Dạ bạn hỏi lại giúp mình nha 🙏')
 
     // Store in memory for fallback
     if (convId) {
@@ -155,7 +196,9 @@ export async function askShopOwner(question, history = [], convId = null) {
     return reply
   } catch (error) {
     console.error('DeepSeek fetch error:', error.message)
-    return 'Dạ shop đang bị lỗi mạng, bạn đợi mình xíu rồi gửi lại nha 📡'
+    return isEnglish
+      ? "We're having a connection issue. Please try again in a moment 📡"
+      : 'Dạ shop đang bị lỗi mạng, bạn đợi mình xíu rồi gửi lại nha 📡'
   }
 }
 
@@ -172,4 +215,15 @@ export function isReady() {
   if (!getApiKey()) return { ready: false, reason: 'Chưa có API key' }
   if (!dataset) return { ready: false, reason: 'Chưa load dataset' }
   return { ready: true, reason: '' }
+}
+
+/**
+ * Simple heuristic to detect if a string is primarily English.
+ * Returns true if text has Latin characters and no Vietnamese diacritics.
+ */
+export function detectLanguage(text) {
+  const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(text)
+  if (hasVietnamese) return 'vi'
+  const hasLatin = /[a-zA-Z]/.test(text)
+  return hasLatin ? 'en' : 'vi'
 }

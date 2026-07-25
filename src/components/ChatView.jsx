@@ -19,6 +19,16 @@ function parseProductImages(text) {
 }
 
 /**
+ * Parse [qr-payment] tag from text.
+ * Returns { cleanText, hasQR }
+ */
+function parseQRPayment(text) {
+  const hasQR = /\[qr-payment\]/i.test(text)
+  const cleanText = text.replace(/\[qr-payment\]/gi, '').trim()
+  return { cleanText, hasQR }
+}
+
+/**
  * Instagram DM Conversation View.
  * Header + message list + input bar — exact Instagram layout.
  * Persists messages to cookies via onMessagesChange callback.
@@ -229,7 +239,8 @@ export default function ChatView({ conversation, onBack, onMessagesChange, showD
                 {/* Message content */}
                 <div className={`max-w-[70%] ${isUser ? 'order-1' : ''}`}>
                   {(() => {
-                    const { cleanText, images } = parseProductImages(msg.text)
+                    const { cleanText: textAfterQR, hasQR } = parseQRPayment(msg.text)
+                    const { cleanText, images } = parseProductImages(textAfterQR)
                     return (
                       <>
                         <div
@@ -265,6 +276,33 @@ export default function ChatView({ conversation, onBack, onMessagesChange, showD
                                 </div>
                               </div>
                             ))}
+                          </div>
+                        )}
+                        {/* QR Payment Card */}
+                        {hasQR && !isUser && (
+                          <div className="mt-2 w-[200px] overflow-hidden rounded-[16px] border border-ig-border bg-white shadow-sm">
+                            <div className="bg-gradient-to-r from-blue-600 to-blue-400 px-3 py-2 flex items-center gap-2">
+                              <span className="text-white text-[11px] font-bold tracking-wide">ACB</span>
+                              <span className="text-blue-100 text-[10px]">Thanh toán QR</span>
+                            </div>
+                            <div className="px-3 pt-2 pb-1">
+                              <p className="text-[10px] text-gray-500 font-medium">Chủ tài khoản</p>
+                              <p className="text-[11px] text-gray-800 font-bold">LUU NGUYEN BAO HAN</p>
+                              <p className="text-[10px] text-gray-500 mt-0.5">STK: 2071108</p>
+                            </div>
+                            <div className="px-3 pb-3">
+                              <img
+                                src="/images/qr_payment.jpg"
+                                alt="QR thanh toán ACB"
+                                className="w-full rounded-[8px] border border-gray-100"
+                                loading="lazy"
+                              />
+                            </div>
+                            <div className="bg-gray-50 px-3 py-1.5 flex items-center gap-1.5 border-t border-gray-100">
+                              <span className="text-[9px] text-gray-400 font-medium">VIETQR</span>
+                              <span className="text-gray-300 text-[9px]">•</span>
+                              <span className="text-[9px] text-gray-400">napas 247</span>
+                            </div>
                           </div>
                         )}
                       </>
