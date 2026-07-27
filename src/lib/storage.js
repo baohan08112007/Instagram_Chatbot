@@ -1,104 +1,64 @@
 /**
- * Cookie-based conversation persistence.
+ * localStorage-based conversation persistence.
  *
- * Cookies store serialized messages so chat history survives page refresh.
- * Each conversation stored in a separate cookie: `ig_chat_<convId>`
- * Max 50 most recent messages per conversation to stay within ~4KB cookie limit.
- * Expires in 7 days.
+ * Each conversation stored under its own key: `ig_chat_<convId>`
+ * localStorage gives ~5-10MB per origin (vs. cookies' ~4KB), so full
+ * history is kept — no message-count trimming needed.
  *
  * Also stores conversation list metadata in `ig_chat_list`.
  */
 
-const COOKIE_PREFIX = 'ig_chat_'
-const COOKIE_LIST_KEY = 'ig_chat_list'
-const MAX_MESSAGES = 50
-const EXPIRE_DAYS = 7
+const STORAGE_PREFIX = 'ig_chat_'
+const STORAGE_LIST_KEY = 'ig_chat_list'
 
 /**
- * Set a cookie with expiration.
- */
-function setCookieRaw(name, value, days = EXPIRE_DAYS) {
-  const expires = new Date(Date.now() + days * 864e5).toUTCString()
-  document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)};expires=${expires};path=/;SameSite=Lax`
-}
-
-/**
- * Get a cookie by name.
- */
-function getCookieRaw(name) {
-  const prefix = `${encodeURIComponent(name)}=`
-  for (const c of document.cookie.split('; ')) {
-    if (c.startsWith(prefix)) {
-      return decodeURIComponent(c.slice(prefix.length))
-    }
-  }
-  return null
-}
-
-/**
- * Delete a cookie.
- */
-function deleteCookieRaw(name) {
-  document.cookie = `${encodeURIComponent(name)}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`
-}
-
-/**
- * Save conversation messages to cookie.
+ * Save conversation messages to localStorage.
  * @param {string} convId
  * @param {Array<{id: string, text: string, from: string, time: string}>} messages
  */
 export function saveConversation(convId, messages) {
   if (!convId) return
-
-  // Only keep last N messages to stay under cookie size limit
-  const trimmed = messages.slice(-MAX_MESSAGES)
-
-  // Estimate size. If too large, trim further
-  let payload = JSON.stringify(trimmed)
-  let limit = MAX_MESSAGES
-  while (payload.length > 3500 && limit > 5) {
-    limit = Math.floor(limit / 2)
-    payload = JSON.stringify(trimmed.slice(-limit))
+  try {
+    localStorage.setItem(STORAGE_PREFIX + convId, JSON.stringify(messages))
+    updateConversationList(convId, messages)
+  } catch (error) {
+    console.error('Failed to save conversation to localStorage:', error)
   }
-
-  setCookieRaw(COOKIE_PREFIX + convId, payload, EXPIRE_DAYS)
-  updateConversationList(convId)
 }
 
 /**
- * Load conversation messages from cookie.
+ * Load conversation messages from localStorage.
  * @param {string} convId
  * @returns {Array|null} Messages array or null if not found
  */
 export function loadConversation(convId) {
   if (!convId) return null
-  const raw = getCookieRaw(COOKIE_PREFIX + convId)
+  const raw = localStorage.getItem(STORAGE_PREFIX + convId)
   if (!raw) return null
   try {
     const data = JSON.parse(raw)
     if (Array.isArray(data) && data.length > 0) return data
   } catch {
-    // Corrupted cookie — clean up
-    deleteCookieRaw(COOKIE_PREFIX + convId)
+    // Corrupted entry — clean up
+    localStorage.removeItem(STORAGE_PREFIX + convId)
   }
   return null
 }
 
 /**
- * Delete a conversation from cookies.
+ * Delete a conversation from localStorage.
  */
 export function deleteConversation(convId) {
   if (!convId) return
-  deleteCookieRaw(COOKIE_PREFIX + convId)
+  localStorage.removeItem(STORAGE_PREFIX + convId)
   removeFromConversationList(convId)
 }
 
 /**
- * Save last message preview + unseen status to conversation list cookie.
+ * Save last message preview + unseen status to conversation list entry.
  */
-function updateConversationList(convId) {
+function updateConversationList(convId, messages) {
   const list = getConversationList() || {}
-  const messages = loadConversation(convId)
   if (messages && messages.length > 0) {
     const last = messages[messages.length - 1]
     list[convId] = {
@@ -108,44 +68,44 @@ function updateConversationList(convId) {
       updatedAt: Date.now(),
     }
   }
-  setCookieRaw(COOKIE_LIST_KEY, JSON.stringify(list), EXPIRE_DAYS)
+  localStorage.setItem(STORAGE_LIST_KEY, JSON.stringify(list))
 }
 
 function removeFromConversationList(convId) {
   const list = getConversationList() || {}
   delete list[convId]
-  setCookieRaw(COOKIE_LIST_KEY, JSON.stringify(list), EXPIRE_DAYS)
+  localStorage.setItem(STORAGE_LIST_KEY, JSON.stringify(list))
 }
 
 /**
- * Get conversation list metadata from cookie.
+ * Get conversation list metadata from localStorage.
  * @returns {Object|null} { [convId]: { lastMessage, lastTime, messageCount, updatedAt } }
  */
 export function getConversationList() {
-  const raw = getCookieRaw(COOKIE_LIST_KEY)
+  const raw = localStorage.getItem(STORAGE_LIST_KEY)
   if (!raw) return null
   try {
     return JSON.parse(raw)
   } catch {
-    deleteCookieRaw(COOKIE_LIST_KEY)
+    localStorage.removeItem(STORAGE_LIST_KEY)
     return null
   }
 }
 
 /**
- * Check if a conversation has saved data in cookies.
+ * Check if a conversation has saved data in localStorage.
  */
 export function hasSavedConversation(convId) {
-  return !!getCookieRaw(COOKIE_PREFIX + convId)
+  return !!localStorage.getItem(STORAGE_PREFIX + convId)
 }
 
 /**
- * Clear all chat cookies.
+ * Clear all chat data from localStorage.
  */
 export function clearAllConversations() {
   const list = getConversationList()
   if (list) {
-    Object.keys(list).forEach((id) => deleteCookieRaw(COOKIE_PREFIX + id))
+    Object.keys(list).forEach((id) => localStorage.removeItem(STORAGE_PREFIX + id))
   }
-  deleteCookieRaw(COOKIE_LIST_KEY)
+  localStorage.removeItem(STORAGE_LIST_KEY)
 }
