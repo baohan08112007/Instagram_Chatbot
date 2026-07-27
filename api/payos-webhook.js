@@ -1,4 +1,4 @@
-import PayOS from '@payos/node'
+import { PayOS } from '@payos/node'
 import { Redis } from '@upstash/redis'
 
 const redis = new Redis({
@@ -14,12 +14,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    const payos = new PayOS(
-      process.env.PAYOS_CLIENT_ID,
-      process.env.PAYOS_API_KEY,
-      process.env.PAYOS_CHECKSUM_KEY,
-    )
-    const webhookData = payos.verifyPaymentWebhookData(req.body)
+    const payos = new PayOS({
+      clientId: process.env.PAYOS_CLIENT_ID,
+      apiKey: process.env.PAYOS_API_KEY,
+      checksumKey: process.env.PAYOS_CHECKSUM_KEY,
+    })
+    const webhookData = await payos.webhooks.verify(req.body)
 
     await redis.set(
       `order:${webhookData.orderCode}`,

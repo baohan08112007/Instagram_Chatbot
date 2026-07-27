@@ -1,4 +1,4 @@
-import PayOS from '@payos/node'
+import { PayOS } from '@payos/node'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -19,12 +19,12 @@ export default async function handler(req, res) {
   const orderCode = Date.now() % 1_000_000_000
 
   try {
-    const payos = new PayOS(
-      process.env.PAYOS_CLIENT_ID,
-      process.env.PAYOS_API_KEY,
-      process.env.PAYOS_CHECKSUM_KEY,
-    )
-    const paymentLink = await payos.createPaymentLink({
+    const payos = new PayOS({
+      clientId: process.env.PAYOS_CLIENT_ID,
+      apiKey: process.env.PAYOS_API_KEY,
+      checksumKey: process.env.PAYOS_CHECKSUM_KEY,
+    })
+    const paymentLink = await payos.paymentRequests.create({
       orderCode,
       amount: Math.round(amount),
       description: description.slice(0, 25),
