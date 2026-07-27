@@ -33,6 +33,14 @@ function parsePaymentTag(text) {
   }
 }
 
+const ORDER_INTENT_REGEX = /\b(chốt|lấy|mình lấy|cho mình đặt|đặt hàng|mình mua|mình order|mình chốt|đặt luôn|lấy luôn|cho em đặt|em lấy|em chốt|em mua|chốt đơn)\b/i
+const PHONE_REGEX = /(0|\+84)\d{9,10}/
+
+/** Heuristic: does the message look like it contains name + phone + address (order confirmation info)? */
+function looksLikeContactInfo(text) {
+  return PHONE_REGEX.test(text) && text.length > 15
+}
+
 /**
  * Instagram DM Conversation View.
  * Header + message list + input bar — exact Instagram layout.
@@ -158,8 +166,17 @@ export default function ChatView({ conversation, onBack, onMessagesChange, showD
 
     const { ready } = isReady()
     if (ready) {
+      // Client-side nudge: DeepSeek doesn't always honor the order-confirmation
+      // rule from the system prompt alone, so reinforce it here when detected.
+      let questionForAI = text
+      if (ORDER_INTENT_REGEX.test(text)) {
+        questionForAI = `${text}\n\n(Hệ thống: khách vừa xác nhận muốn đặt hàng — LUÔN áp dụng RULE #1, hỏi tên/sđt/địa chỉ, không hỏi thêm về sản phẩm.)`
+      } else if (looksLikeContactInfo(text)) {
+        questionForAI = `${text}\n\n(Hệ thống: khách vừa cung cấp thông tin nhận hàng — nếu tin nhắn trước đó khách đã xác nhận muốn mua, LUÔN áp dụng RULE #2, tóm tắt đơn và chèn [thanhtoan:...].)`
+      }
+
       // Pass full message history + conversation ID for context-aware replies
-      const reply = await askShopOwner(text, messages, conversation?.id)
+      const reply = await askShopOwner(questionForAI, messages, conversation?.id)
       const botMsg = {
         id: (Date.now() + 1).toString(),
         text: reply,
