@@ -1,11 +1,5 @@
 import PayOS from '@payos/node'
 
-const payos = new PayOS(
-  process.env.PAYOS_CLIENT_ID,
-  process.env.PAYOS_API_KEY,
-  process.env.PAYOS_CHECKSUM_KEY,
-)
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -17,9 +11,19 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing amount or description' })
   }
 
+  if (!process.env.PAYOS_CLIENT_ID || !process.env.PAYOS_API_KEY || !process.env.PAYOS_CHECKSUM_KEY) {
+    console.error('Missing PayOS env vars')
+    return res.status(500).json({ error: 'PayOS not configured' })
+  }
+
   const orderCode = Date.now() % 1_000_000_000
 
   try {
+    const payos = new PayOS(
+      process.env.PAYOS_CLIENT_ID,
+      process.env.PAYOS_API_KEY,
+      process.env.PAYOS_CHECKSUM_KEY,
+    )
     const paymentLink = await payos.createPaymentLink({
       orderCode,
       amount: Math.round(amount),
