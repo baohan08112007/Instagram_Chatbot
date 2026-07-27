@@ -19,6 +19,21 @@ function parseProductImages(text) {
 }
 
 /**
+ * Parse [thanhtoan:AMOUNT:DESCRIPTION] tag from text.
+ * Returns { cleanText, payment: {amount, description} | null }
+ */
+function parsePaymentTag(text) {
+  const paymentRegex = /\[thanhtoan:(\d+):([^\]]+)\]/
+  const match = text.match(paymentRegex)
+  const cleanText = text.replace(paymentRegex, '').trim()
+  if (!match) return { cleanText, payment: null }
+  return {
+    cleanText,
+    payment: { amount: parseInt(match[1], 10), description: match[2].trim() },
+  }
+}
+
+/**
  * Instagram DM Conversation View.
  * Header + message list + input bar — exact Instagram layout.
  * Persists messages to cookies via onMessagesChange callback.
@@ -27,9 +42,75 @@ export default function ChatView({ conversation, onBack, onMessagesChange, showD
   const [messages, setMessages] = useState(conversation?.messages || [])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [orders, setOrders] = useState({}) // { [messageId]: { amount, description, checkoutUrl, orderCode, status } }
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
   const isFirstRender = useRef(true)
+  const pollTimersRef = useRef({})
+
+  /** Create a PayOS payment link for a bot message carrying a [thanhtoan:...] tag */
+  const createPaymentForMessage = async (messageId, amount, description) => {
+    setOrders((prev) => ({ ...prev, [messageId]: { amount, description, status: 'CREATING' } }))
+    try {
+      const res = await fetch('/api/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount,
+          description,
+          returnUrl: window.location.href,
+          cancelUrl: window.location.href,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Payment creation failed')
+
+      setOrders((prev) => ({
+        ...prev,
+        [messageId]: { amount, description, checkoutUrl: data.checkoutUrl, orderCode: data.orderCode, status: 'PENDING' },
+      }))
+      pollOrderStatus(messageId, data.orderCode)
+    } catch (error) {
+      console.error('Create payment error:', error)
+      setOrders((prev) => ({ ...prev, [messageId]: { amount, description, status: 'ERROR' } }))
+    }
+  }
+
+  /** Poll order status every 3s until PAID/FAILED, then append a confirmation message */
+  const pollOrderStatus = (messageId, orderCode) => {
+    const tick = async () => {
+      try {
+        const res = await fetch(`/api/order-status?orderCode=${orderCode}`)
+        const data = await res.json()
+        if (data.status === 'PAID' || data.status === 'FAILED') {
+          setOrders((prev) => ({ ...prev, [messageId]: { ...prev[messageId], status: data.status } }))
+          clearInterval(pollTimersRef.current[messageId])
+          delete pollTimersRef.current[messageId]
+
+          if (data.status === 'PAID') {
+            const confirmMsg = {
+              id: `paid-${orderCode}`,
+              text: 'Thanh toán thành công! Shop đã nhận được đơn của bạn, cảm ơn bạn nhiều 🎉📦',
+              from: 'shop',
+              time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+            }
+            setMessages((prev) => [...prev, confirmMsg])
+          }
+        }
+      } catch (error) {
+        console.error('Poll order status error:', error)
+      }
+    }
+    pollTimersRef.current[messageId] = setInterval(tick, 3000)
+  }
+
+  // Clean up any active polling timers on unmount / conversation switch
+  useEffect(() => {
+    return () => {
+      Object.values(pollTimersRef.current).forEach(clearInterval)
+      pollTimersRef.current = {}
+    }
+  }, [conversation?.id])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -86,6 +167,11 @@ export default function ChatView({ conversation, onBack, onMessagesChange, showD
         time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
       }
       setMessages((prev) => [...prev, botMsg])
+
+      const { payment } = parsePaymentTag(reply)
+      if (payment) {
+        createPaymentForMessage(botMsg.id, payment.amount, payment.description)
+      }
     } else {
       // Offline fallback — shop auto-replies with demo data
       const fallback = getFallbackReply(text)
@@ -229,7 +315,9 @@ export default function ChatView({ conversation, onBack, onMessagesChange, showD
                 {/* Message content */}
                 <div className={`max-w-[70%] ${isUser ? 'order-1' : ''}`}>
                   {(() => {
-                    const { cleanText, images } = parseProductImages(msg.text)
+                    const { cleanText: textAfterPayment } = parsePaymentTag(msg.text)
+                    const { cleanText, images } = parseProductImages(textAfterPayment)
+                    const order = orders[msg.id]
                     return (
                       <>
                         <div
@@ -265,6 +353,34 @@ export default function ChatView({ conversation, onBack, onMessagesChange, showD
                                 </div>
                               </div>
                             ))}
+                          </div>
+                        )}
+                        {/* Payment card */}
+                        {order && (
+                          <div className="mt-1.5 w-[220px] rounded-ig-md border border-ig-border bg-ig-canvas-soft px-3 py-2.5">
+                            <p className="text-fs-ig-caption text-ig-body">{order.description}</p>
+                            <p className="text-fs-ig-username text-ig-ink mt-0.5">
+                              {order.amount.toLocaleString('vi-VN')}đ
+                            </p>
+                            {order.status === 'CREATING' && (
+                              <p className="text-fs-ig-caption text-ig-body mt-1.5">Đang tạo link thanh toán…</p>
+                            )}
+                            {order.status === 'PENDING' && order.checkoutUrl && (
+                              <a
+                                href={order.checkoutUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-1.5 block text-center bg-ig-primary text-white text-fs-ig-button font-semibold rounded-ig-md py-1.5 hover:bg-ig-primary-hover transition-colors"
+                              >
+                                Thanh toán ngay
+                              </a>
+                            )}
+                            {order.status === 'PAID' && (
+                              <p className="text-fs-ig-username text-ig-success mt-1.5">✅ Đã thanh toán</p>
+                            )}
+                            {(order.status === 'FAILED' || order.status === 'ERROR') && (
+                              <p className="text-fs-ig-username text-ig-destructive mt-1.5">⚠️ Thanh toán lỗi</p>
+                            )}
                           </div>
                         )}
                       </>

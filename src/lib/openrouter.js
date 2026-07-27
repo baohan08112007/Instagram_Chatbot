@@ -66,7 +66,15 @@ Ví dụ:
 - "Bên mình có áo oversize 290k và polo 320k, bạn thích kiểu nào?\n[hình:AT002]\n[hình:AT003]"
 - Khi khách hỏi chung chung thì không cần thêm hình.
 - Mỗi tin nhắn chỉ embed tối đa 3 ảnh sản phẩm.
-- LUÔN đặt [hình:ID] ở dòng riêng cuối tin nhắn, không nhúng vào giữa câu.`
+- LUÔN đặt [hình:ID] ở dòng riêng cuối tin nhắn, không nhúng vào giữa câu.
+
+QUAN TRỌNG — CHỐT ĐƠN & THANH TOÁN:
+Khi khách đã xác nhận muốn mua và đã cung cấp đủ thông tin để chốt đơn (đã biết sản phẩm, size/màu nếu cần, và khách nói kiểu "chốt", "đặt luôn", "thanh toán", "chuyển khoản"...), hãy tóm tắt đơn hàng và thêm dòng [thanhtoan:TỔNG_TIỀN:MÔ_TẢ_NGẮN] ở CUỐI tin nhắn để tạo link thanh toán.
+- TỔNG_TIỀN là số nguyên VNĐ, không có dấu phẩy hay ký tự (ví dụ 522000).
+- MÔ_TẢ_NGẮN tối đa 25 ký tự, không dấu chấm câu đặc biệt (ví dụ "Don ao thun 2N").
+- Ví dụ: "Dạ chốt đơn áo oversize L/XL xanh rêu, tổng 290,000đ. Mình gửi link thanh toán nha 💳\n[thanhtoan:290000:Ao oversize xanh reu]"
+- CHỈ chèn [thanhtoan:...] khi khách đã thực sự đồng ý chốt đơn, không chèn khi mới đang tư vấn/hỏi giá.
+- Đặt [thanhtoan:...] ở dòng riêng cuối cùng, không nhúng vào giữa câu, không dùng cùng tin nhắn với [hình:...].`
 }
 
 /**
